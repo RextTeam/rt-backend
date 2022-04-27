@@ -1,0 +1,4 @@
+sanic
+sanic-ext
+orjson
+ipcs
