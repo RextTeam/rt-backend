@@ -10,6 +10,9 @@ from ipcs import IpcsServer
 from .types_ import TypedContext
 
 
+__all__ = ("TypedSanic", "setup")
+
+
 class TypedSanic(Sanic):
     ctx: TypedContext
 

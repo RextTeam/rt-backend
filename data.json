@@ -1,0 +1,4 @@
+{
+    "sanic": {"host": "", "port": 8080},
+    "ips": ["localhost"]
+}
