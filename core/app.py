@@ -1,6 +1,5 @@
 # RT - App
 
-from traceback import TracebackException
 from functools import wraps
 
 from sanic.exceptions import Forbidden, SanicException
@@ -21,6 +20,7 @@ from data import SECRET, API_VERSION, TEST, CANARY
 
 from .types_ import TypedContext
 from .rtws import setup as setup_ipcs
+from .features import Features
 from .utils import api
 
 
@@ -46,6 +46,7 @@ def setup(app: TypedSanic) -> TypedSanic:
     "Setup app"
     app.ctx.extend_mysql = ExtendMySQL(app, **SECRET["mysql"])
     app.ctx.ipcs = SanicIpcsServer()
+    app.ctx.features = Features(app)
     setup_ipcs(app)
 
     app.config.CORS_ORIGINS = "http://localhost,http://127.0.0.1,https://rt.rext.dev,http://rtbo.tk"

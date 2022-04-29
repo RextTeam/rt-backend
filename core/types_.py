@@ -8,6 +8,8 @@ from aiomysql import Pool
 
 from ipcs.ext.for_sanic import SanicIpcsServer
 
+from .features import Features
+
 
 __all__ = ("TypedContext", "APIResponseJson")
 
@@ -16,6 +18,7 @@ class TypedContext(SimpleNamespace):
     extend_mysql: ExtendMySQL
     pool: Pool
     ipcs: SanicIpcsServer
+    features: Features
 
 
 class APIResponseJson(TypedDict):
