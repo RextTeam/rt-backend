@@ -1,5 +1,7 @@
 __pycache__
 .DS_Store
 secret.json
+data.json
 .*
 !.gitignore
+rtlib
