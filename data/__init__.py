@@ -26,18 +26,15 @@ class SanicData(TypedDict):
     fast: bool
 class NormalData(TypedDict):
     sanic: SanicData
+    realhost: str
     ips: list
 with open("data.json", "r") as f:
     DATA: NormalData = loads(f.read())
 
 
 CANARY = "canary" in argv
-if argv[1] == "test":
-    TEST = True
-    REALHOST = DATA["sanic"]["host"]
-else:
-    TEST = False
-    REALHOST = "rt.rext.dev"
+TEST = argv[1] == "test"
+REALHOST = DATA["realhost"]
 
 
 API_VERSION = "0.1.0"
