@@ -80,8 +80,9 @@ def setup(app: TypedSanic) -> TypedSanic:
 
     @app.exception(Exception)
     async def on_exception(_: Request, exception: Exception) -> Response:
+        data = f"{exception.__class__.__name__}: {exception}"
         if isinstance(exception, SanicException):
-            return api(exception.message, "Error", exception.status_code)
+            return api(data, "Error", exception.status_code)
         if isinstance(exception, AssertionError):
             status = 400
             data = exception.args[0]
@@ -91,7 +92,6 @@ def setup(app: TypedSanic) -> TypedSanic:
             else:
                 status = 500
             logger.error("Error was occured:\n%s" % make_error_message(exception))
-            data = f"{exception.__class__.__name__}: {exception}"
         return api(data, "Error", status)
 
     return app
