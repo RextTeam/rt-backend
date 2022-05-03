@@ -35,10 +35,6 @@ CANARY = "canary" in argv
 if argv[1] == "test":
     TEST = True
     REALHOST = DATA["sanic"]["host"]
-    if "hosted" in argv:
-        REALHOST = "rt-bot-test.com"
-    if CANARY:
-        REALHOST = "rt-canary.f5.si"
 else:
     TEST = False
     REALHOST = "rt.rext.dev"

@@ -16,9 +16,3 @@ RTのバックエンドです。
 `python3 main.py test`で起動が可能です。  
 本番時は`test`を`production`に変えてください。  
 もし`canary`として起動する場合は、`test`引数に加えて`canary`を引数に入れてください。
-
-## テスト用引数
-`python3 main.py test hosted`のように`hosted`を入れると、`rt-bot-test.com`ドメインからのアクセスされるとします。  
-ドメインからアクセスしているように動かすためのものです。  
-これを行う場合は`hosts`に以下のように書き込んでください。  
-`127.0.0.1       rt-bot-test.com api.rt-bot-test.com`
