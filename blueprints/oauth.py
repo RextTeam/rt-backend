@@ -3,6 +3,7 @@
 from sanic.response import redirect
 from sanic import Blueprint
 
+from core.utils import CoolDown
 from core import Request, api
 
 from data import REALHOST_PORT
@@ -12,6 +13,7 @@ bp = Blueprint("oauth", "/account")
 
 
 @bp.route("/login")
+@CoolDown(1, 1)
 async def login(request: Request):
     return redirect(await request.app.ctx.oauth.generate_url(
         request.url_for("oauth.callback"), ("identify",)
@@ -19,6 +21,7 @@ async def login(request: Request):
 
 
 @bp.route("/callback")
+@CoolDown(1, 1)
 async def callback(request: Request):
     assert request.conn_info is not None, "conn_infoが見つかりませんでした。"
     response = redirect(getattr(request.conn_info.ctx, "redirect", "/"))
