@@ -12,7 +12,7 @@ RTのバックエンドです。
 3. `data.json`と`secret.json`の中身をそこに書かれてる通りに適切なものを書き込みます。
 4. リポジトリ`rt-lib`を`clone`してフォルダの名前を`rtlib`にする。
 5. `rt-frontend`をクローンする。
-6. 通信の暗号化等に使うキーを作る。`rtlib/rtlib/common/make_key.py`を実行して、作られる`secret.key`をBot側にも置いておく。
+5. ルートに`secret.key`を`rtlib/rtlib/common/make_key.py`で作る。もしバックエンド側にあるならそれをコピーする。
 
 ## 起動方法
 `python3 main.py test`で起動が可能です。  

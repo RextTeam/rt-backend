@@ -9,7 +9,6 @@ from blueprints import bp
 app = TypedSanic("rt-backend")
 setup(app)
 app.blueprint(bp)
-print(REALHOST_PORT)
 
 
 app.run(**DATA["sanic"])

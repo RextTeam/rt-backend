@@ -86,6 +86,7 @@ def setup(app: TypedSanic) -> TypedSanic:
     @app.main_process_start
     async def on_start(_, __):
         app.ctx.cachers = CacherPool()
+        app.ctx.cachers.start()
 
     @app.before_server_start
     async def on_start_server(app_: TypedSanic, __):
