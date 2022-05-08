@@ -1,22 +1,29 @@
 # RT - Utils
 
-from typing import TypeVar, Literal, Any
+from typing import TypeVar, ParamSpec, Literal, Any
 from collections.abc import Callable, Coroutine
 
 from functools import wraps
 
 from sanic.exceptions import Forbidden
 from sanic.response import HTTPResponse
-from sanic.request import Request
 
+from aiofiles.os import wrap as _wrap # type: ignore
 from orjson import dumps
 
 from data import DATA
 
-from .types_ import APIResponseJson
+from .types_ import APIResponseJson, Request
 
 
-__all__ = ("is_valid", "get_ip", "api")
+__all__ = ("is_valid", "get_ip", "api", "executor_function")
+
+
+EfArgsP, EfRetT = ParamSpec("EfArgsP"), TypeVar("EfRetT")
+def executor_function(func: Callable[EfArgsP, EfRetT]) \
+        -> Callable[EfArgsP, Coroutine[Any, Any, EfRetT]]:
+    "同期関数を`loop.run_in_executor`で自動で実行されるようにします。"
+    return _wrap(func)
 
 
 IvFnT = TypeVar("IvFnT", bound=Callable[..., Coroutine])

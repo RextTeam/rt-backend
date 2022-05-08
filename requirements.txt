@@ -2,3 +2,5 @@ sanic
 sanic-ext
 orjson
 ipcs
+miko
+discord

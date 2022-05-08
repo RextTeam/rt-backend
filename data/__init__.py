@@ -1,5 +1,6 @@
 # RT - Data
 
+from calendar import c
 from typing import TypedDict, Any
 
 from sys import argv
@@ -13,9 +14,13 @@ __all__ = (
 )
 
 
+class OAuth(TypedDict):
+    client_id: str
+    client_secret: str
 class Secret(TypedDict):
     mysql: dict[str, Any]
     stripe: str
+    oauth: OAuth
 with open("secret.json", "r") as f:
     SECRET: Secret = loads(f.read())
 
@@ -27,6 +32,7 @@ class SanicData(TypedDict):
 class NormalData(TypedDict):
     sanic: SanicData
     realhost: str
+    origins: str
     ips: list
 with open("data.json", "r") as f:
     DATA: NormalData = loads(f.read())
