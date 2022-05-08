@@ -33,6 +33,7 @@ class NormalData(TypedDict):
     sanic: SanicData
     realhost: str
     origins: str
+    realhost_from_bot: str
     ips: list
 with open("data.json", "r") as f:
     DATA: NormalData = loads(f.read())
