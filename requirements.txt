@@ -1,5 +1,6 @@
 sanic
 sanic-ext
+sanic-aiomysql
 orjson
 ipcs
 miko
