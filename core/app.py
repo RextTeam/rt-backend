@@ -105,7 +105,7 @@ def setup(app: TypedSanic) -> TypedSanic:
         host, _ = parse_host(request.host)
         assert host is not None
         host = host.replace("api.", "", 1)
-        if host != REALHOST:
+        if host != REALHOST and host not in ("localhost", "127.0.0.1"):
             raise Forbidden("このアドレスでアクセスすることはできません。")
 
         if "api." not in request.host and request.url.endswith(".html"):
