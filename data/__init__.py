@@ -10,7 +10,7 @@ from orjson import loads
 
 __all__ = (
     "SECRET", "TEST", "CANARY", "DATA", "REALHOST", "API_VERSION",
-    "REALHOST_PORT", "URL", "API_URL"
+    "REALHOST_PORT", "URL", "API_URL", "API_HOST"
 )
 
 
@@ -33,7 +33,6 @@ class NormalData(TypedDict):
     sanic: SanicData
     realhost: str
     origins: str
-    realhost_from_bot: str
     ips: list
 with open("data.json", "r") as f:
     DATA: NormalData = loads(f.read())
@@ -44,13 +43,16 @@ TEST = argv[1] == "test"
 REALHOST = DATA["realhost"]
 
 
+def host_port(host: str) -> str:
+    return "{}{}".format(
+        host,
+        "" if DATA["sanic"]["port"] in (443, 80)
+            else f':{DATA["sanic"]["port"]}'
+    )
+
+
+API_HOST = list(map(host_port, (f"api.{REALHOST}", "api.localhost", "api.127.0.0.1")))
 API_VERSION = "0.1.0"
-
-
-REALHOST_PORT = "{}{}".format(
-    REALHOST,
-    "" if DATA["sanic"]["port"] in (443, 80)
-        else f':{DATA["sanic"]["port"]}'
-)
+REALHOST_PORT = host_port(REALHOST)
 URL = f"http{'s' if DATA['sanic']['port'] == 443 else ''}://{REALHOST_PORT}"
 API_URL = URL.replace("://", "://api.", 1)

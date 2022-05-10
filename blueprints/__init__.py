@@ -3,9 +3,7 @@
 from sanic.request import Request
 from sanic import Blueprint
 
-from data import REALHOST_PORT
-
-from core.utils import api
+from data import API_HOST
 
 
-bp = Blueprint("normal", host=f"api.{REALHOST_PORT}")
+bp = Blueprint("normal", host=API_HOST)
