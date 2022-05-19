@@ -6,5 +6,6 @@
     "realhost": "外部からアクセスする際のホスト名、本番は`rt.rext.dev`",
     "realhost_from_bot": "Botからアクセスする際のホスト名",
     "origins": "CORSの有効なOriginのやつに入れるやつ。アクセスに使うドメインにhttpつけたやつを`,`で分けて入れて。",
-    "ips": ["127.0.0.1"] // BotオンリーなプライベートなAPIへアクセス可能なIPのリストです。
+    "ips": ["127.0.0.1"], // BotオンリーなプライベートなAPIへアクセス可能なIPのリストです。
+    "hcaptcha": "" //hcaptchaのkey
 }
