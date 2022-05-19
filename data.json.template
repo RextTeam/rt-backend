@@ -7,5 +7,5 @@
     "realhost_from_bot": "Botからアクセスする際のホスト名",
     "origins": "CORSの有効なOriginのやつに入れるやつ。アクセスに使うドメインにhttpつけたやつを`,`で分けて入れて。",
     "ips": ["127.0.0.1"], // BotオンリーなプライベートなAPIへアクセス可能なIPのリストです。
-    "hcaptcha": "" //hcaptchaのkey
+    "hcaptcha": {} //hcaptchaのkey
 }
