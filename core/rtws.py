@@ -12,7 +12,7 @@ from ipcs.server import logger as ipcs_logger
 
 from rtlib.common import set_handler
 
-from data import API_HOST
+from data import API_HOSTS
 
 from .utils import is_valid
 
@@ -25,8 +25,7 @@ set_handler(ipcs_logger)
 
 
 def setup(app: TypedSanic):
-    print(API_HOST)
-    @app.websocket("/rtws", API_HOST)
+    @app.websocket("/rtws", API_HOSTS)
     @is_valid
     async def rtws(_: Request, ws: WebsocketImplProtocol):
         await app.ctx.ipcs.communicate(ws)

@@ -26,6 +26,8 @@ from .rtws import setup as setup_ipcs
 from .oauth import OAuth
 from .features import Features
 from .utils import api
+from .hcaptcha import hCaptcha
+from .ipc import ExtendedIpcsServer
 
 
 __all__ = ("TypedSanic", "setup")
@@ -49,10 +51,10 @@ ExtendMySQL.before_server_start = _new_before_server_start_ems
 def setup(app: TypedSanic) -> TypedSanic:
     "Setup app"
     app.ctx.extend_mysql = ExtendMySQL(app, **SECRET["mysql"])
-    app.ctx.ipcs = SanicIpcsServer()
+    app.ctx.ipcs = ExtendedIpcsServer()
     app.ctx.features = Features(app)
     app.ctx.chiper = ChiperManager.from_key_file("secret.key")
-    app.ctx.miko = Manager()
+    app.ctx.miko = Manager(extends={"app": app})
     setup_ipcs(app)
 
     def t(tag="div", extends="", class_="", **kwargs) -> str:
@@ -90,6 +92,9 @@ def setup(app: TypedSanic) -> TypedSanic:
 
     @app.before_server_start
     async def on_start_server(app_: TypedSanic, __):
+        app.ctx.hcaptcha = hCaptcha(app, DATA["hcaptcha"].get(
+            "api_key", hCaptcha.TEST_API_KEY
+        ))
         app_.ctx.oauth = OAuth(app_, **SECRET["oauth"])
 
     @app.main_process_stop
@@ -138,6 +143,8 @@ def setup(app: TypedSanic) -> TypedSanic:
     from blueprints import bp
     app.blueprint(bp)
     from blueprints.oauth import bp
+    app.blueprint(bp)
+    from blueprints.captcha import bp
     app.blueprint(bp)
 
     return app

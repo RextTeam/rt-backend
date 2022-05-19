@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from sanic_mysql import ExtendMySQL
     from aiomysql import Pool
 
-    from ipcs.ext.for_sanic import SanicIpcsServer
     from miko import Manager
 
     from rtlib.common.chiper import ChiperManager
@@ -21,6 +20,8 @@ if TYPE_CHECKING:
     from .oauth import OAuth
     from .features import Features
     from .app import TypedSanic
+    from .hcaptcha import hCaptcha
+    from .ipc import ExtendedIpcsServer
 
 
 __all__ = ("TypedContext", "APIResponseJson", "CoroutineFunction", "Request")
@@ -29,12 +30,13 @@ __all__ = ("TypedContext", "APIResponseJson", "CoroutineFunction", "Request")
 class TypedContext(SimpleNamespace):
     extend_mysql: ExtendMySQL
     pool: Pool
-    ipcs: SanicIpcsServer
+    ipcs: ExtendedIpcsServer
     features: Features
     oauth: OAuth
     cachers: CacherPool
     chiper: ChiperManager
     miko: Manager
+    hcaptcha: hCaptcha
 
 
 class APIResponseJson(TypedDict):

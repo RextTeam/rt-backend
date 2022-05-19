@@ -10,7 +10,7 @@ from orjson import loads
 
 __all__ = (
     "SECRET", "TEST", "CANARY", "DATA", "REALHOST", "API_VERSION",
-    "REALHOST_PORT", "URL", "API_URL", "API_HOST"
+    "REALHOST_PORT", "URL", "API_URL", "API_HOSTS", "TIMEOUT"
 )
 
 
@@ -29,11 +29,15 @@ class SanicData(TypedDict):
     host: str
     port: int
     fast: bool
+class hCaptchaData(TypedDict, total=False):
+    api_key: str
+    site_key: str
 class NormalData(TypedDict):
     sanic: SanicData
     realhost: str
     origins: str
     ips: list
+    hcaptcha: hCaptchaData
 with open("data.json", "r") as f:
     DATA: NormalData = loads(f.read())
 
@@ -51,8 +55,11 @@ def host_port(host: str) -> str:
     )
 
 
-API_HOST = list(map(host_port, (f"api.{REALHOST}", "api.localhost", "api.127.0.0.1")))
+API_HOSTS = list(map(host_port, (f"api.{REALHOST}", "api.localhost", "api.127.0.0.1")))
 API_VERSION = "0.1.0"
 REALHOST_PORT = host_port(REALHOST)
 URL = f"http{'s' if DATA['sanic']['port'] == 443 else ''}://{REALHOST_PORT}"
 API_URL = URL.replace("://", "://api.", 1)
+
+
+TIMEOUT = "タイムアウトしました。\nTimeout."

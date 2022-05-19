@@ -1,7 +1,7 @@
 # RT.Backend by Rext
 
 from core import TypedSanic, setup
-from data import DATA, REALHOST_PORT
+from data import DATA
 
 from blueprints import bp
 

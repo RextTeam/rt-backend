@@ -23,8 +23,7 @@ async def login(request: Request):
 @bp.route("/callback")
 @CoolDown(1, 1)
 async def callback(request: Request):
-    assert request.conn_info is not None, "conn_infoが見つかりませんでした。"
-    response = redirect(getattr(request.conn_info.ctx, "redirect", "/"))
+    response = redirect(request.cookies.get("redirect", "/"))
     response.cookies["session"] = await request.app.ctx.oauth.encrypt(
         await request.app.ctx.oauth.make_cookie(
             await request.app.ctx.oauth.fetch_user(

@@ -1,5 +1,7 @@
 # RT - hCaptcha
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, TypedDict
 
 from aiohttp import ClientSession
