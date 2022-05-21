@@ -10,7 +10,6 @@ from sanic.log import logger
 from sanic import Sanic
 
 from sanic_mysql import ExtendMySQL
-from ipcs.ext.for_sanic import SanicIpcsServer
 from miko import Manager
 
 from orjson import JSONDecodeError
