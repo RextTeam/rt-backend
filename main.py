@@ -3,12 +3,12 @@
 from core import TypedSanic, setup
 from data import DATA
 
-from blueprints import bp
+from blueprints import bpg
 
 
 app = TypedSanic("rt-backend")
 setup(app)
-app.blueprint(bp)
+app.blueprint(bpg)
 
 
 app.run(**DATA["sanic"])

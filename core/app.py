@@ -147,11 +147,4 @@ def setup(app: TypedSanic) -> TypedSanic:
     app.static("/", "rt-frontend", host=REALHOST_PORT)
     app.static("/favicon.ico", "rt-frontend/img/favicon.ico")
 
-    from blueprints import bp
-    app.blueprint(bp)
-    from blueprints.oauth import bp
-    app.blueprint(bp)
-    from blueprints.captcha import bp
-    app.blueprint(bp)
-
     return app
