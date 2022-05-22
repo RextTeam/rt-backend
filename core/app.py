@@ -18,7 +18,7 @@ from rtlib.common.utils import make_error_message
 from rtlib.common.chiper import ChiperManager
 from rtlib.common.cacher import CacherPool
 
-from data import REALHOST, REALHOST_PORT, SECRET, DATA, API_VERSION, TEST, CANARY
+from data import REALHOST, REALHOST_PORT, SECRET, DATA, API_VERSION, TEST, CANARY, SSL
 
 from .types_ import TypedContext
 from .rtws import setup as setup_ipcs
@@ -45,6 +45,14 @@ async def _new_before_server_start_ems(self: ExtendMySQL, app, loop):
     await _original_before_server_start_ems(self, app, loop)
     self.app.ctx.pool = self.pool
 ExtendMySQL.before_server_start = _new_before_server_start_ems
+_original_request_url_for = Request.url_for
+@wraps(_original_request_url_for)
+def _new_request_url_for(*args, **kwargs) -> str:
+    data = _original_request_url_for(*args, **kwargs)
+    if SSL and data.startswith("http://"):
+        data = data.replace("http://", "https://", 1)
+    return data
+Request.url_for = _new_request_url_for
 
 
 def setup(app: TypedSanic) -> TypedSanic:

@@ -1,6 +1,5 @@
 # RT - Data
 
-from calendar import c
 from typing import TypedDict, Any
 
 from sys import argv
@@ -10,7 +9,7 @@ from orjson import loads
 
 __all__ = (
     "SECRET", "TEST", "CANARY", "DATA", "REALHOST", "API_VERSION",
-    "REALHOST_PORT", "URL", "API_URL", "API_HOSTS", "TIMEOUT"
+    "REALHOST_PORT", "URL", "API_URL", "API_HOSTS", "TIMEOUT", "SSL"
 )
 
 
@@ -37,6 +36,7 @@ class NormalData(TypedDict):
     realhost: str
     origins: str
     ips: list
+    ssl: bool
     hcaptcha: hCaptchaData
 with open("data.json", "r") as f:
     DATA: NormalData = loads(f.read())
@@ -45,6 +45,7 @@ with open("data.json", "r") as f:
 CANARY = "canary" in argv
 TEST = argv[1] == "test"
 REALHOST = DATA["realhost"]
+SSL = DATA["ssl"]
 
 
 def host_port(host: str) -> str:
