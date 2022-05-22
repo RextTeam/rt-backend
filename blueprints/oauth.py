@@ -24,10 +24,6 @@ async def login(request: Request):
 @CoolDown(1, 1)
 async def callback(request: Request):
     response = redirect(request.cookies.get("redirect", "/"))
-    data = await request.app.ctx.oauth.get_token(
-        request.args.get("code"), request.url_for("oauth.callback")
-    )
-    print(data)
     response.cookies["session"] = await request.app.ctx.oauth.encrypt(
         await request.app.ctx.oauth.make_cookie(
             await request.app.ctx.oauth.fetch_user(
