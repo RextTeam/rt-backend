@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sanic_mysql import ExtendMySQL
     from aiomysql import Pool
 
-    from miko import Manager
+    from tempylate import Manager
 
     from rtlib.common.chiper import ChiperManager
     from rtlib.common.cacher import CacherPool
@@ -35,7 +35,7 @@ class TypedContext(SimpleNamespace):
     oauth: OAuth
     cachers: CacherPool
     chiper: ChiperManager
-    miko: Manager
+    tempylate: Manager
     hcaptcha: hCaptcha
 
 

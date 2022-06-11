@@ -3,5 +3,5 @@ sanic-ext
 sanic-aiomysql
 orjson
 ipcs
-miko
+tempylate
 discord

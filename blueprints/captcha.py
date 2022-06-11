@@ -20,7 +20,7 @@ async def captcha(request: Request, guild_id: str):
 
 @bp.route("/start/<guild_id>")
 async def start(request: Request, guild_id: str):
-    return html(await request.app.ctx.miko.aiorender(
+    return html(await request.app.ctx.tempylate.aiorender(
         "rt-frontend/pages/captcha.html", mode="start",
         guild_id=guild_id
     ))
@@ -38,7 +38,7 @@ async def result(request: Request, guild_id: int):
         )
     else:
         content = "Captcha failed. Please retry.\n認証に失敗しました。もう一度行なってください。"
-    response = html(await request.app.ctx.miko.aiorender(
+    response = html(await request.app.ctx.tempylate.aiorender(
         "rt-frontend/pages/captcha.html", mode="result",
         content=content
     ))

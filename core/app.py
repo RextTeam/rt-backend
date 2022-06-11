@@ -10,7 +10,7 @@ from sanic.log import logger
 from sanic import Sanic
 
 from sanic_mysql import ExtendMySQL
-from miko import Manager
+from tempylate import Manager
 
 from orjson import JSONDecodeError
 
@@ -61,7 +61,7 @@ def setup(app: TypedSanic) -> TypedSanic:
     app.ctx.ipcs = ExtendedIpcsServer()
     app.ctx.features = Features(app)
     app.ctx.chiper = ChiperManager.from_key_file("secret.key")
-    app.ctx.miko = Manager(extends={"app": app})
+    app.ctx.tempylate = Manager({"app": app})
     setup_ipcs(app)
 
     def t(tag="div", extends="", class_="", **kwargs) -> str:
@@ -70,13 +70,15 @@ def setup(app: TypedSanic) -> TypedSanic:
             f'<{tag} class="language {key} {class_}" {extends} hidden>{value}</{tag}>'
             for key, value in kwargs.items()
         )
-    app.ctx.miko.extends["t"] = t
+    app.ctx.tempylate.builtins["t"] = t
 
     async def layout(**kwargs):
         kwargs.setdefault("head", "")
         kwargs.setdefault("content", "")
-        return await app.ctx.miko.aiorender("rt-frontend/layout.html", **kwargs)
-    app.ctx.miko.extends["layout"] = layout
+        return await app.ctx.tempylate.aiorender_from_file(
+            "rt-frontend/layout.html", **kwargs
+        )
+    app.ctx.tempylate.builtins["layout"] = layout
 
     if not TEST and not CANARY:
         app.config.REAL_IP_HEADER = "CF-Connecting-IP"
@@ -125,7 +127,7 @@ def setup(app: TypedSanic) -> TypedSanic:
             path = request.path
             if path.startswith("/"):
                 path = path[1:]
-            return html(await app.ctx.miko.aiorender(f"rt-frontend/{path}", t=t))
+            return html(await app.ctx.tempylate.aiorender_from_file(f"rt-frontend/{path}"))
 
     @app.exception(Exception)
     async def on_exception(_: Request, exception: Exception) -> Response:
