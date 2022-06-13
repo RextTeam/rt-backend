@@ -1,4 +1,4 @@
-
+#!/bin/bash
 echo "Setupping backend"
 cp secret.json.template secret.json
 cp data.json.template data.json
@@ -9,4 +9,11 @@ mv rt-lib rtlib
 cd rtlib
 python3 -m pip install -r requirements.txt
 cd ..
+read input
+if [ $input = "y" ] ; then
+    nano secret.json
+    nano data.json
+else
+    echo "ok"
+fi
 echo "Setup was finish"
