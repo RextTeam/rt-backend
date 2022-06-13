@@ -9,6 +9,7 @@ mv rt-lib rtlib
 cd rtlib
 python3 -m pip install -r requirements.txt
 cd ..
+echo "Do you want setup with nano?(y/n)"
 read input
 if [ $input = "y" ] ; then
     nano secret.json
