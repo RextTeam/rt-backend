@@ -21,7 +21,7 @@ body:
     attributes:
       label: Version
       description: >
-        `python -m discord -v` shellでこれを実行してください。
+        `python3 -V` shellでこれを実行してください。
     validations:
       required: true
   - type: textarea
