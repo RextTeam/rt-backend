@@ -1,0 +1,32 @@
+name: Report bug(バグの報告)
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bug報告をしてください。
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: また、生じると期待されていたことは何でしょうか？
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: Version
+      description: >
+        `python3 -V` shellでこれを実行してください。
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: 関連するログの出力をコピーしてペーストしてください。 これは自動的にコードにフォーマットされるので、バックティックは不要です。
+      render: shell
