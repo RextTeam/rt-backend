@@ -20,7 +20,7 @@ async def captcha(request: Request, guild_id: str):
 
 @bp.route("/start/<guild_id>")
 async def start(request: Request, guild_id: str):
-    return html(await request.app.ctx.tempylate.aiorender(
+    return html(await request.app.ctx.tempylate.aiorender_from_file(
         "rt-frontend/pages/captcha.html", mode="start",
         guild_id=guild_id
     ))
@@ -30,15 +30,15 @@ async def start(request: Request, guild_id: str):
 async def result(request: Request, guild_id: int):
     assert (data := await request.app.ctx.oauth.fetch_user(request)) is not None, TIMEOUT
     if (await request.app.ctx.hcaptcha.verify(
-        request.form.get("h-captcha-response"))
-    ).get("success", False):
+        request.form["h-captcha-response"]
+    )).get("success", False):
         content = await request.app.ctx.ipcs.request(
             request.app.ctx.ipcs.detect_target(guild_id),
             "on_success", data["id"]
         )
     else:
         content = "Captcha failed. Please retry.\n認証に失敗しました。もう一度行なってください。"
-    response = html(await request.app.ctx.tempylate.aiorender(
+    response = html(await request.app.ctx.tempylate.aiorender_from_file(
         "rt-frontend/pages/captcha.html", mode="result",
         content=content
     ))

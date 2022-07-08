@@ -117,7 +117,7 @@ class OAuth:
             if "session" in token_or_request.args or "session" in token_or_request.cookies:
                 user = (await self.decrypt(
                     token_or_request.args.get("session")
-                    or token_or_request.cookies.get("session")
+                    or token_or_request.cookies["session"]
                 ))
                 return PartialUser(
                     id=user.user_id, name=user.name, avatar_url=None if user.avatar is None
