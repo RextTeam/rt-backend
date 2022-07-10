@@ -1,3 +1,5 @@
+# RT - Data
+
 # クライアント側からアクセスする際にSSLが使われるかどうか。
 ssl = false
 # Cloudflareが使われているかどうか。
