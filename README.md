@@ -8,8 +8,8 @@ RTのバックエンドです。
 
 ## 用意
 1. 要件にあるものをまずインストールします。
-2. `data.json.template`と`secret.json.template`のコピーを作って、名前をそれぞれ`.template`を消した名前にします。
-3. `data.json`と`secret.json`の中身をそこに書かれてる通りに適切なものを書き込みます。
+2. `data.template.toml`と`secret.template.toml`のコピーを作って、名前をそれぞれ`.template`を消した名前にします。
+3. `data.toml`と`secret.toml`の中身をそこに書かれてる通りに適切なものを書き込みます。
 4. リポジトリ`rt-lib`を`clone`してフォルダの名前を`rtlib`にする。
 5. `rt-frontend`をクローンする。
 5. ルートに`secret.key`を`rtlib/rtlib/common/make_key.py`で作る。もしバックエンド側にあるならそれをコピーする。
