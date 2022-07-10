@@ -29,6 +29,7 @@ async def start(request: Request, guild_id: str):
 @bp.route("/result/<guild_id:int>", methods=("GET", "POST"))
 async def result(request: Request, guild_id: int):
     assert (data := await request.app.ctx.oauth.fetch_user(request)) is not None, TIMEOUT
+    assert request.form is not None
     if (await request.app.ctx.hcaptcha.verify(
         request.form["h-captcha-response"]
     )).get("success", False):

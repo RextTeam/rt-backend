@@ -5,3 +5,5 @@ orjson
 ipcs
 tempylate
 discord
+async-stripe
+toml

@@ -1,11 +1,13 @@
 __pycache__
 .DS_Store
 
-secret.json
-secret.key
-rt-frontend
-data.json
 .*
 !.gitignore
 rtlib
 venv
+
+rt-frontend
+*.key
+*.toml
+!data.template.toml
+!secret.template.toml

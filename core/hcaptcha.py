@@ -13,6 +13,9 @@ if TYPE_CHECKING:
     from .app import TypedSanic
 
 
+__all__ = ("Response", "hCaptchaManager")
+
+
 class Response(TypedDict, total=False):
    success: bool
    "is the passcode valid, and does it meet security criteria you specified, e.g. sitekey?"
@@ -22,13 +25,13 @@ class Response(TypedDict, total=False):
    "the hostname of the site where the challenge was solved"
 
 
-class hCaptcha:
+class hCaptchaManager:
 
     TEST_API_KEY = "0x0000000000000000000000000000000000000000"
     TEST_SITE_KEY = "20000000-ffff-ffff-ffff-000000000002"
 
-    def __init__(self, app: TypedSanic, api_key: str):
-        self.app, self.api_key = app, api_key
+    def __init__(self, app: TypedSanic, api_key: str, site_key: str):
+        self.app, self.api_key, self.site_key = app, api_key, site_key
         self.session = ClientSession(json_serialize=json_serialize)
 
     @executor_function

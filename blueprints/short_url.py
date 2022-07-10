@@ -7,7 +7,7 @@ from sanic.response import redirect
 
 from core import Request
 
-from data import TEST, REALHOST_PORT
+from data import TEST, HOSTS
 
 
 bp = Blueprint("short_url")
@@ -27,7 +27,7 @@ ALTERNATIVE_FOR_INVALID = (
 ALTERNATIVE_MAX_INDEX = len(ALTERNATIVE_FOR_INVALID) - 1
 
 
-@bp.route("/<code>", host=REALHOST_PORT if TEST else "rtbo.tk")
+@bp.route("/<code>", host=HOSTS if TEST else "rtbo.tk")
 async def short_url(request: Request, code: str):
     async with request.app.ctx.pool.acquire() as conn:
         async with conn.cursor() as cursor:

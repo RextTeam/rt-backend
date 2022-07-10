@@ -4,12 +4,14 @@ from typing import TypedDict, Any
 
 from sys import argv
 
-from orjson import loads
+from itertools import chain
+
+from toml import load
 
 
 __all__ = (
-    "SECRET", "TEST", "CANARY", "DATA", "REALHOST", "API_VERSION",
-    "REALHOST_PORT", "URL", "API_URL", "API_HOSTS", "TIMEOUT", "SSL"
+    "SECRET", "TEST", "DATA", "API_VERSION", "SCHEME", "HOSTS",
+    "API_HOSTS", "ORIGINS", "API_ORIGINS", "TIMEOUT", "SSL"
 )
 
 
@@ -20,31 +22,28 @@ class Secret(TypedDict):
     mysql: dict[str, Any]
     stripe: str
     oauth: OAuth
-with open("secret.json", "r") as f:
-    SECRET: Secret = loads(f.read())
+with open("secret.toml", "r") as f:
+    SECRET: Secret = load(f) # type: ignore
 
 
 class SanicData(TypedDict):
     host: str
     port: int
     fast: bool
-class hCaptchaData(TypedDict, total=False):
-    api_key: str
-    site_key: str
+class hCaptchaData(TypedDict):
+    api_key: str | None
+    site_key: str | None
 class NormalData(TypedDict):
     sanic: SanicData
-    realhost: str
-    origins: str
-    ips: list
+    additional_hosts: list[str]
     ssl: bool
+    cloudflare: bool
     hcaptcha: hCaptchaData
-with open("data.json", "r") as f:
-    DATA: NormalData = loads(f.read())
+with open("data.toml", "r") as f:
+    DATA: NormalData = load(f) # type: ignore
 
 
-CANARY = "canary" in argv
 TEST = argv[1] == "test"
-REALHOST = DATA["realhost"]
 SSL = DATA["ssl"]
 
 
@@ -56,11 +55,14 @@ def host_port(host: str) -> str:
     )
 
 
-API_HOSTS = list(map(host_port, (f"api.{REALHOST}", "api.localhost", "api.127.0.0.1")))
+SCHEME = f"http{'s' if DATA['sanic']['port'] == 443 else ''}://"
+HOSTS = list(map(host_port, chain(("localhost", "127.0.0.1"), DATA["additional_hosts"])))
+API_HOSTS = list(map(lambda h: f"api.{h}", HOSTS))
+to_url = lambda h: f"{SCHEME}{h}"
+ORIGINS = list(map(to_url, HOSTS))
+API_ORIGINS = list(map(to_url, API_HOSTS))
+del to_url
+
+
 API_VERSION = "0.1.0"
-REALHOST_PORT = host_port(REALHOST)
-URL = f"http{'s' if DATA['sanic']['port'] == 443 else ''}://{REALHOST_PORT}"
-API_URL = URL.replace("://", "://api.", 1)
-
-
 TIMEOUT = "タイムアウトしました。\nTimeout."

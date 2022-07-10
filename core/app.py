@@ -2,8 +2,9 @@
 
 from functools import wraps
 
-from sanic.response import HTTPResponse as Response, html, redirect
+from sanic.response import HTTPResponse, html, redirect
 from sanic.exceptions import Forbidden, SanicException
+from sanic.errorpages import HTMLRenderer
 from sanic.headers import parse_host
 from sanic.request import Request
 from sanic.log import logger
@@ -18,15 +19,16 @@ from rtlib.common.utils import make_error_message
 from rtlib.common.chiper import ChiperManager
 from rtlib.common.cacher import CacherPool
 
-from data import REALHOST, REALHOST_PORT, SECRET, DATA, API_VERSION, TEST, CANARY, SSL
+from data import SECRET, DATA, API_VERSION, TEST, SSL, HOSTS, API_HOSTS, ORIGINS, API_ORIGINS
 
 from .types_ import TypedContext
 from .rtws import setup as setup_ipcs
-from .oauth import OAuth
+from .oauth import OAuthManager
+from .hcaptcha import hCaptchaManager
+from .stripe import StripeManager
+from .ipc import ExtendedIpcsServer
 from .features import Features
 from .utils import api
-from .hcaptcha import hCaptcha
-from .ipc import ExtendedIpcsServer
 
 
 __all__ = ("TypedSanic", "setup")
@@ -64,6 +66,7 @@ def setup(app: TypedSanic) -> TypedSanic:
     app.ctx.tempylate = Manager({"app": app})
     setup_ipcs(app)
 
+    # フロントエンド向けのセットアップをする。
     def t(tag="div", extends="", class_="", **kwargs) -> str:
         "複数言語対応用"
         return "".join(
@@ -80,10 +83,11 @@ def setup(app: TypedSanic) -> TypedSanic:
         )
     app.ctx.tempylate.builtins["layout"] = layout
 
-    if not TEST and not CANARY:
+    # バックエンド向けのセットアップをする。
+    if DATA["cloudflare"]:
         app.config.REAL_IP_HEADER = "CF-Connecting-IP"
 
-    app.config.CORS_ORIGINS = DATA["origins"]
+    app.config.CORS_ORIGINS = ORIGINS + API_ORIGINS
     app.ext.openapi.describe( # type: ignore
         "RT API",
         version=API_VERSION,
@@ -98,13 +102,15 @@ def setup(app: TypedSanic) -> TypedSanic:
     async def on_start(_, __):
         app.ctx.cachers = CacherPool()
         app.ctx.cachers.start()
+        app.ctx.stripe = StripeManager(app, SECRET["stripe"])
 
     @app.before_server_start
     async def on_start_server(app_: TypedSanic, __):
-        app.ctx.hcaptcha = hCaptcha(app, DATA["hcaptcha"].get(
-            "api_key", hCaptcha.TEST_API_KEY
-        ))
-        app_.ctx.oauth = OAuth(app_, **SECRET["oauth"])
+        app.ctx.hcaptcha = hCaptchaManager(
+            app, DATA["hcaptcha"]["api_key"] or hCaptchaManager.TEST_API_KEY,
+            DATA["hcaptcha"]["site_key"] or hCaptchaManager.TEST_SITE_KEY
+        )
+        app_.ctx.oauth = OAuthManager(app_, **SECRET["oauth"])
 
     @app.main_process_stop
     async def cleanup(_, __):
@@ -115,12 +121,9 @@ def setup(app: TypedSanic) -> TypedSanic:
         await app.ctx.ipcs.close(reason="Server is stopping")
 
     @app.on_request
-    async def on_request(request: Request):
+    async def on_request(request: Request) -> HTTPResponse | None:
         # ホスト名が許可リストにあるかどうかを調べる。
-        host, _ = parse_host(request.host)
-        assert host is not None
-        host = host.replace("api.", "", 1)
-        if host != REALHOST and host not in ("localhost", "127.0.0.1"):
+        if request.host not in HOSTS and request.host not in API_HOSTS:
             raise Forbidden("このアドレスでアクセスすることはできません。")
 
         if "api." not in request.host and request.url.endswith(".html"):
@@ -130,23 +133,27 @@ def setup(app: TypedSanic) -> TypedSanic:
             return html(await app.ctx.tempylate.aiorender_from_file(f"rt-frontend/{path}"))
 
     @app.exception(Exception)
-    async def on_exception(_: Request, exception: Exception) -> Response:
-        data = f"{exception.__class__.__name__}: {exception}"
-        if isinstance(exception, AssertionError):
-            status = 400
-            data = exception.args[0]
-        elif isinstance(exception, SanicException):
-            status = exception.status_code
-        else:
-            if isinstance(exception, JSONDecodeError):
+    async def on_exception(request: Request, exception: Exception) -> HTTPResponse:
+        if "api." in request.host:
+            data = f"{exception.__class__.__name__}: {exception}"
+            if isinstance(exception, AssertionError):
                 status = 400
+                data = exception.args[0]
+            elif isinstance(exception, SanicException):
+                status = exception.status_code
             else:
-                status = 500
-        if status == 500:
-            logger.error("Error was occured:\n%s" % make_error_message(exception))
-        return api(data, "Error", status)
+                if isinstance(exception, JSONDecodeError):
+                    status = 400
+                else:
+                    status = 500
+            if status == 500:
+                logger.error("Error was occured:\n%s" % make_error_message(exception))
+            return api(data, "Error", status)
+        else:
+            return HTMLRenderer(request, exception, TEST).render()
 
-    app.static("/", "rt-frontend", host=REALHOST_PORT)
+    for host in HOSTS:
+        app.static("/", "rt-frontend", host=host)
     app.static("/favicon.ico", "rt-frontend/img/favicon.ico")
 
     return app

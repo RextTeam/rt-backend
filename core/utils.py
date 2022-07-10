@@ -30,14 +30,26 @@ def executor_function(func: Callable[EfArgsP, EfRetT]) \
 
 
 IvFnT = TypeVar("IvFnT", bound=Callable[..., Coroutine])
+_last_time = time()
 def is_valid(route: IvFnT) -> IvFnT:
     "リクエスト元のIPがコアAPIにアクセス可能かどうかを調べるためのデコレータです。"
     @wraps(route)
     async def _new(request: Request, *args, **kwargs) -> Any:
-        if get_ip(request) in DATA["ips"]:
-            return await route(request, *args, **kwargs)
+        try:
+            # 署名を確認する。
+            name, _, time_ = request.app.ctx.chiper.decrypt(
+                request.args.get("signature", "")
+            ).split("_")
+        except Exception:
+            is_ok = False
         else:
-            raise Forbidden("Your IP is not an accessible IP for this endpoint.")
+            global _last_time
+            time_ = float(time_)
+            is_ok = name == "RT.Discord.Bot" and time_ > _last_time
+            _last_time = time_
+        if is_ok:
+            return await route(request, *args, **kwargs)
+        raise Forbidden("You can't connect to this endpoint.")
     return _new # type: ignore
 
 

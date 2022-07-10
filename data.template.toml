@@ -1,0 +1,21 @@
+# クライアント側からアクセスする際にSSLが使われるかどうか。
+ssl = false
+# Cloudflareが使われているかどうか。
+cloudflare = false
+# バックエンドにアクセス可能なホスト名のリストです。
+# 例えば、本番時は`rt.rext.dev`をこのリストに入れます。
+additional_hosts = []
+
+# hCaptchaの情報です。空の場合はテスト用の公開キーが自動で使われます。
+[hcaptcha]
+api_key = ""
+site_key = ""
+
+# ウェブフレームワークのSanicの設定です。
+# ここに入れたものは`sanic.Sanic`のキーワード引数に渡されます。
+[sanic]
+host = "localhost"
+port = 8080
+# コンピュータの性能をできるだけ使い切るかどうかです。
+# 本番時はこれを`true`にしてください。
+fast = false

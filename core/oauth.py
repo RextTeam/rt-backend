@@ -22,6 +22,9 @@ if TYPE_CHECKING:
     from .app import TypedSanic
 
 
+__all__ = ("PartialUser", "CookieData", "OAuthManager")
+
+
 class PartialUser(TypedDict):
     id: int
     name: str
@@ -41,7 +44,7 @@ class CookieData:
     to_dict = to_dict_for_dataclass
 
 
-class OAuth:
+class OAuthManager:
     "OAuthクライアントです。一つまでしか作られないべきです。"
 
     BASE = "https://discord.com/api"

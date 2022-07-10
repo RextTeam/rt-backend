@@ -17,10 +17,11 @@ if TYPE_CHECKING:
     from rtlib.common.chiper import ChiperManager
     from rtlib.common.cacher import CacherPool
 
-    from .oauth import OAuth
+    from .oauth import OAuthManager
     from .features import Features
     from .app import TypedSanic
-    from .hcaptcha import hCaptcha
+    from .stripe import StripeManager
+    from .hcaptcha import hCaptchaManager
     from .ipc import ExtendedIpcsServer
 
 
@@ -32,11 +33,12 @@ class TypedContext(SimpleNamespace):
     pool: Pool
     ipcs: ExtendedIpcsServer
     features: Features
-    oauth: OAuth
+    oauth: OAuthManager
     cachers: CacherPool
     chiper: ChiperManager
     tempylate: Manager
-    hcaptcha: hCaptcha
+    hcaptcha: hCaptchaManager
+    stripe: StripeManager
 
 
 class APIResponseJson(TypedDict):

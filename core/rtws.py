@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sanic.server.websockets.impl import WebsocketImplProtocol
-from sanic.log import logger
 from sanic.request import Request
+from sanic.log import logger
+from sanic import Websocket, HTTPResponse
 
 from ipcs.server import logger as ipcs_logger
 
@@ -27,8 +27,13 @@ set_handler(ipcs_logger)
 def setup(app: TypedSanic):
     @app.websocket("/rtws", API_HOSTS)
     @is_valid
-    async def rtws(_: Request, ws: WebsocketImplProtocol):
+    async def rtws(_: Request, ws: Websocket):
         await app.ctx.ipcs.communicate(ws)
+
+    @app.route("/test_is_valid")
+    @is_valid
+    async def test_is_valid(_):
+        return HTTPResponse(status=200)
 
     @app.ctx.ipcs.route("logger")
     def logger_(mode: str, *args, **kwargs):
