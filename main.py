@@ -1,7 +1,8 @@
 # RT.Backend by Rext
 
 from core import TypedSanic, setup
-from data import DATA
+
+from data import DATA, TEST
 
 from blueprints import bpg
 
@@ -11,4 +12,5 @@ setup(app)
 app.blueprint(bpg)
 
 
+DATA["sanic"].setdefault("debug", TEST)
 app.run(**DATA["sanic"])

@@ -1,6 +1,6 @@
 sanic
 sanic-ext
-sanic-aiomysql
+aiomysql
 orjson
 ipcs
 tempylate

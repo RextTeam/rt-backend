@@ -5,19 +5,19 @@ from functools import wraps
 from sanic.response import HTTPResponse, html, redirect
 from sanic.exceptions import Forbidden, SanicException
 from sanic.errorpages import HTMLRenderer
-from sanic.headers import parse_host
 from sanic.request import Request
 from sanic.log import logger
 from sanic import Sanic
 
-from sanic_mysql import ExtendMySQL
-from tempylate import Manager
+from aiomysql import create_pool
 
+from tempylate import Manager
 from orjson import JSONDecodeError
 
 from rtlib.common.utils import make_error_message
 from rtlib.common.chiper import ChiperManager
 from rtlib.common.cacher import CacherPool
+from rtlib.common.reply_error import ReplyError
 
 from data import SECRET, DATA, API_VERSION, TEST, SSL, HOSTS, API_HOSTS, ORIGINS, API_ORIGINS
 
@@ -25,7 +25,7 @@ from .types_ import TypedContext
 from .rtws import setup as setup_ipcs
 from .oauth import OAuthManager
 from .hcaptcha import hCaptchaManager
-from .stripe import StripeManager
+from .customer_manager import CustomerManager
 from .ipc import ExtendedIpcsServer
 from .features import Features
 from .utils import api
@@ -40,13 +40,7 @@ class TypedSanic(Sanic):
     ctx: TypedContext
 
 
-# Poolを作った際にAppのContextにプールを入れておく。
-_original_before_server_start_ems = ExtendMySQL.before_server_start
-@wraps(_original_before_server_start_ems)
-async def _new_before_server_start_ems(self: ExtendMySQL, app, loop):
-    await _original_before_server_start_ems(self, app, loop)
-    self.app.ctx.pool = self.pool
-ExtendMySQL.before_server_start = _new_before_server_start_ems
+# `sanic.Request.url_for`で設定のSSLが`True`なら、URLの`http`を`https`に置き換えるようにモンキーパッチする。
 _original_request_url_for = Request.url_for
 @wraps(_original_request_url_for)
 def _new_request_url_for(*args, **kwargs) -> str:
@@ -58,8 +52,7 @@ Request.url_for = _new_request_url_for
 
 
 def setup(app: TypedSanic) -> TypedSanic:
-    "Setup app"
-    app.ctx.extend_mysql = ExtendMySQL(app, **SECRET["mysql"])
+    "Sanicのセットアップを行います。"
     app.ctx.ipcs = ExtendedIpcsServer()
     app.ctx.features = Features(app)
     app.ctx.chiper = ChiperManager.from_key_file("secret.key")
@@ -102,7 +95,9 @@ def setup(app: TypedSanic) -> TypedSanic:
     async def on_start(_, __):
         app.ctx.cachers = CacherPool()
         app.ctx.cachers.start()
-        app.ctx.stripe = StripeManager(app, SECRET["stripe"])
+        app.ctx.pool = await create_pool(**SECRET["mysql"])
+        app.ctx.customers = CustomerManager(app, **SECRET["stripe"])
+        await app.ctx.customers.start()
 
     @app.before_server_start
     async def on_start_server(app_: TypedSanic, __):
@@ -115,9 +110,9 @@ def setup(app: TypedSanic) -> TypedSanic:
     @app.main_process_stop
     async def cleanup(_, __):
         # ipcsサーバーを終了しておく。
-        logger.info("Closing cacher...")
+        logger.info("Closing...")
         app.ctx.cachers.close()
-        logger.info("Closing ipcs...")
+        app.ctx.customers.close()
         await app.ctx.ipcs.close(reason="Server is stopping")
 
     @app.on_request
@@ -136,9 +131,9 @@ def setup(app: TypedSanic) -> TypedSanic:
     async def on_exception(request: Request, exception: Exception) -> HTTPResponse:
         if "api." in request.host:
             data = f"{exception.__class__.__name__}: {exception}"
-            if isinstance(exception, AssertionError):
-                status = 400
-                data = exception.args[0]
+            if isinstance(exception, ReplyError):
+                status = exception.status
+                data = exception.text
             elif isinstance(exception, SanicException):
                 status = exception.status_code
             else:

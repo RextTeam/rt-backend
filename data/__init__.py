@@ -11,30 +11,30 @@ from toml import load
 
 __all__ = (
     "SECRET", "TEST", "DATA", "API_VERSION", "SCHEME", "HOSTS",
-    "API_HOSTS", "ORIGINS", "API_ORIGINS", "TIMEOUT", "SSL"
+    "API_HOSTS", "ORIGINS", "API_ORIGINS", "TIMEOUT", "SSL",
+    "NORMAL_PAYMENT_LINKS"
 )
 
 
 class OAuth(TypedDict):
     client_id: str
     client_secret: str
+class Stripe(TypedDict):
+    api_key: str
+    endpoint_secret: str
 class Secret(TypedDict):
     mysql: dict[str, Any]
-    stripe: str
+    stripe: Stripe
     oauth: OAuth
 with open("secret.toml", "r") as f:
     SECRET: Secret = load(f) # type: ignore
 
 
-class SanicData(TypedDict):
-    host: str
-    port: int
-    fast: bool
 class hCaptchaData(TypedDict):
     api_key: str | None
     site_key: str | None
 class NormalData(TypedDict):
-    sanic: SanicData
+    sanic: dict[str, Any]
     additional_hosts: list[str]
     ssl: bool
     cloudflare: bool
@@ -66,3 +66,9 @@ del to_url
 
 API_VERSION = "0.1.0"
 TIMEOUT = "タイムアウトしました。\nTimeout."
+
+
+NORMAL_PAYMENT_LINKS = {
+    "year": "https://buy.stripe.com/4gw4hIg5Q4DQ5Z63ce",
+    "month": "https://buy.stripe.com/bIYaG65rc4DQ5Z6dQU"
+}

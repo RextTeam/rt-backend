@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from .oauth import OAuthManager
     from .features import Features
     from .app import TypedSanic
-    from .stripe import StripeManager
+    from .customer_manager import CustomerManager
     from .hcaptcha import hCaptchaManager
     from .ipc import ExtendedIpcsServer
 
@@ -38,7 +38,7 @@ class TypedContext(SimpleNamespace):
     chiper: ChiperManager
     tempylate: Manager
     hcaptcha: hCaptchaManager
-    stripe: StripeManager
+    customers: CustomerManager
 
 
 class APIResponseJson(TypedDict):
