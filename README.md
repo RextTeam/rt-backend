@@ -16,5 +16,4 @@ RTのバックエンドです。
 
 ## 起動方法
 `python3 main.py test`で起動が可能です。  
-本番時は`test`を`production`に変えてください。  
-もし`canary`として起動する場合は、`test`引数に加えて`canary`を引数に入れてください。
+本番時は`test`を`production`に変えてください。
