@@ -18,13 +18,11 @@ class Features:
 
     def __init__(self, app: TypedSanic):
         self.app = app
-        self.app.ctx.ipcs.set_route(self.exists)
+        self.app.ctx.rtws.set_route(self.exists)
 
-    async def exists(self, mode: Literal["user", "guild", "channel"], id_: int) -> bool:
+    async def exists(self, _, mode: Literal["user", "guild", "channel"], id_: int) -> bool:
         """指定されたオブジェクトがRTの見える範囲に存在しているかをチェックします。
         まだBotが起動できていない場合は正しい結果を取得できないことがあります。"""
-        return any(await gather(*(
-            self.app.ctx.ipcs.request(target, "exists", mode, id_)
-            for target in self.app.ctx.ipcs.connections.keys()
-            if target != "__IPCS_SERVER__"
-        )))
+        return any(await self.app.ctx.rtws.request_all(
+            "exists", mode, id_, key=lambda c: c.id_ != "__IPCS_SERVER__"
+        ))

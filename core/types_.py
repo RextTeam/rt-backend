@@ -9,7 +9,6 @@ from types import SimpleNamespace
 from sanic import Request as OriginalRequest
 
 if TYPE_CHECKING:
-    from sanic_mysql import ExtendMySQL
     from aiomysql import Pool
 
     from tempylate import Manager
@@ -29,9 +28,8 @@ __all__ = ("TypedContext", "APIResponseJson", "CoroutineFunction", "Request")
 
 
 class TypedContext(SimpleNamespace):
-    extend_mysql: ExtendMySQL
     pool: Pool
-    ipcs: ExtendedIpcsServer
+    rtws: ExtendedIpcsServer
     features: Features
     oauth: OAuthManager
     cachers: CacherPool

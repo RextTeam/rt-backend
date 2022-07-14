@@ -14,3 +14,4 @@ app.blueprint(bpg)
 
 DATA["sanic"].setdefault("debug", TEST)
 app.run(**DATA["sanic"])
+app.ctx.cachers.close()

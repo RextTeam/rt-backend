@@ -34,10 +34,10 @@ async def result(request: Request, guild_id: int):
     if (await request.app.ctx.hcaptcha.verify(
         request.form["h-captcha-response"]
     )).get("success", False):
-        content = await request.app.ctx.ipcs.request(
-            request.app.ctx.ipcs.detect_target(guild_id),
-            "on_success", data["id"]
-        )
+        content = await request.app.ctx.rtws.connections\
+            [request.app.ctx.rtws.detect_target(guild_id)].request(
+                "on_success", data["id"]
+            )
     else:
         content = "Captcha failed. Please retry.\n認証に失敗しました。もう一度行なってください。"
     response = html(await request.app.ctx.tempylate.aiorender_from_file(

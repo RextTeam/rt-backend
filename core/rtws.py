@@ -8,7 +8,7 @@ from sanic.request import Request
 from sanic.log import logger
 from sanic import Websocket, HTTPResponse
 
-from ipcs.server import logger as ipcs_logger
+from ipcs import logger as ipcs_logger
 
 from rtlib.common import set_handler
 
@@ -28,13 +28,17 @@ def setup(app: TypedSanic):
     @app.websocket("/rtws", API_HOSTS)
     @is_valid
     async def rtws(_: Request, ws: Websocket):
-        await app.ctx.ipcs.communicate(ws)
+        await app.ctx.rtws.communicate(ws)
 
     @app.route("/test_is_valid")
     @is_valid
     async def test_is_valid(_):
         return HTTPResponse(status=200)
 
-    @app.ctx.ipcs.route("logger")
-    def logger_(mode: str, *args, **kwargs):
+    @app.ctx.rtws.route("logger")
+    def logger_(_, mode: str, *args, **kwargs):
         getattr(logger, mode)(*args, **kwargs)
+
+    @app.ctx.rtws.route()
+    def ping(_):
+        return "pong"

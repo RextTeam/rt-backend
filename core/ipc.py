@@ -2,13 +2,13 @@
 
 from collections.abc import Iterator
 
-from ipcs.ext.for_sanic import SanicIpcsServer
+from ipcs.ext.for_sanic import ServerForSanic
 
 
 __all__ = ("ExtendedIpcsServer",)
 
 
-class ExtendedIpcsServer(SanicIpcsServer):
+class ExtendedIpcsServer(ServerForSanic):
     "シャードを特定するための関数を実装したIPCSサーバークラスです。"
 
     def detect_target(self, guild_id: int) -> str:

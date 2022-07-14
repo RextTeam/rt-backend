@@ -53,7 +53,7 @@ Request.url_for = _new_request_url_for
 
 def setup(app: TypedSanic) -> TypedSanic:
     "Sanicのセットアップを行います。"
-    app.ctx.ipcs = ExtendedIpcsServer()
+    app.ctx.rtws = ExtendedIpcsServer("__IPCS_SERVER__")
     app.ctx.features = Features(app)
     app.ctx.chiper = ChiperManager.from_key_file("secret.key")
     app.ctx.tempylate = Manager({"app": app})
@@ -111,9 +111,8 @@ def setup(app: TypedSanic) -> TypedSanic:
     async def cleanup(_, __):
         # ipcsサーバーを終了しておく。
         logger.info("Closing...")
-        app.ctx.cachers.close()
         app.ctx.customers.close()
-        await app.ctx.ipcs.close(reason="Server is stopping")
+        await app.ctx.rtws.close(reason="Server is stopping")
 
     @app.on_request
     async def on_request(request: Request) -> HTTPResponse | None:
