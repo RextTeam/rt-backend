@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal
 
-from asyncio import gather
+from data import DATA
 
 if TYPE_CHECKING:
     from .app import TypedSanic
@@ -18,7 +18,13 @@ class Features:
 
     def __init__(self, app: TypedSanic):
         self.app = app
+        self.shard_count = len(DATA["shard_ids"])
+        self.shard_ids = DATA["shard_ids"]
         self.app.ctx.rtws.set_route(self.exists)
+
+    def calculate_shard(self, guild_id: int) -> int:
+        "サーバーのIDからシャードIDを計算します。"
+        return (guild_id >> 22) % self.shard_count
 
     async def exists(self, _, mode: Literal["user", "guild", "channel"], id_: int) -> bool:
         """指定されたオブジェクトがRTの見える範囲に存在しているかをチェックします。

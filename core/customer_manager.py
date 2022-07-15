@@ -9,6 +9,8 @@ from time import time
 from sanic import Blueprint, Request, HTTPResponse
 from sanic.log import logger
 
+from ipcs import ConnectionForServer
+
 from discord.ext import tasks
 
 from async_stripe import stripe
@@ -49,8 +51,8 @@ class CustomerManager:
             async with conn.cursor() as cursor:
                 await cursor.execute(
                     """CREATE TABLE IF NOT EXISTS Customers (
-                        UserId BIGINT PRIMARY KEY NOT NULL,
-                        Deadline DOUBLE
+                        GuildId BIGINT PRIMARY KEY NOT NULL,
+                        UserId BIGINT, Deadline DOUBLE
                     );"""
                 )
         self._check_dead.start()
@@ -67,11 +69,15 @@ class CustomerManager:
         async with self.app.ctx.pool.acquire() as conn:
             async with conn.cursor() as cursor:
                 async for row in DatabaseManager.fetchstep(cursor, "SELECT * FROM Customers;"):
-                    if row[1] <= now:
-                        # TODO: この時、Bot側でキャッシュされている製品版ユーザー情報を無効にしなければならない。
-                        #       なので、Bot側にRTWSでそれをするように通知を行うようにしなければならない。
+                    if row[2] <= now:
+                        connection = self.app.ctx.rtws.connections \
+                            [self.app.ctx.rtws.detect_target(row[0])]
+                        assert isinstance(connection, ConnectionForServer)
+                        if connection.ws.closed:
+                            continue
+                        await connection.request("remove_customer_cache", row[0])
                         await cursor.execute(
-                            "DELETE FROM Customers WHERE UserId = %s;",
+                            "DELETE FROM Customers WHERE GuildId = %s AND UserId = %s LIMIT 1;",
                             row[:-1]
                         )
 
@@ -94,7 +100,7 @@ class CustomerManager:
         if event["type"] == "checkout.session.completed":
             # 誰による決済なのか、月額か年額かを取り出す。その情報は暗号化して`client_reference_id`に入れている。
             try:
-                user_id, period, _ = self.app.ctx.chiper.decrypt(
+                user_id, guild_id, period, _ = self.app.ctx.chiper.decrypt(
                     event["data"]["object"]["client_reference_id"]
                 ).split("_")
             except Exception as e:
@@ -105,9 +111,9 @@ class CustomerManager:
             async with self.app.ctx.pool.acquire() as conn:
                 async with conn.cursor() as cursor:
                     await cursor.execute(
-                        """INSERT INTO Customers VALUES (%s, %s)
-                            ON DUPLICATE KEY UPDATE Deadline = %s;""",
-                        (int(user_id), deadline, deadline)
+                        """INSERT INTO Customers VALUES (%s, %s, %s)
+                            ON DUPLICATE KEY UPDATE UserId = %s, Deadline = %s;""",
+                        (int(guild_id), user_id, deadline, user_id, deadline)
                     )
 
         return HTTPResponse(status=200)
@@ -118,11 +124,11 @@ class PaymentLinkContainer:
     def __init__(self, app: TypedSanic, payment_links: dict[str, str]):
         self.app, self.payment_links = app, payment_links
 
-    def get_link(self, period_mode: PeriodMode, user_id: int | str) -> str:
+    def get_link(self, period_mode: PeriodMode, user_id: int | str, guild_id: int | str) -> str:
         "製品版の購入の決済をするためのリンクを取得します。"
         return "{}?client_reference_id={}".format(
             self.payment_links[period_mode],
             self.app.ctx.chiper.encrypt(
-                f"{user_id}_{period_mode}_{int(time())}"
+                f"{user_id}_{guild_id}_{period_mode}_{int(time())}"
             )
         )

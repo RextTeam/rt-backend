@@ -18,6 +18,6 @@ async def before_server_start(app: TypedSanic, _):
     payment_links = PaymentLinkContainer(app, NORMAL_PAYMENT_LINKS)
 
 
-@bp.route("/link/<user_id:int>/<period>")
-async def get_link(_: Request, user_id: int, period: PeriodMode) -> HTTPResponse:
-    return api(payment_links.get_link(period, user_id))
+@bp.route("/link/<user_id:int>/<guild_id:int>/<period>")
+async def get_link(_: Request, user_id: int, guild_id: int, period: PeriodMode) -> HTTPResponse:
+    return api(payment_links.get_link(period, user_id, guild_id))
