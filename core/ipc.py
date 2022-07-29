@@ -20,8 +20,4 @@ class ExtendedIpcsServer(ServerForSanic):
 
     def detect_target(self, guild_id: int) -> str:
         "ギルドIDの監視対象のシャードのIDを取得します。"
-        ids = set(self.app.ctx.features.shard_ids)
-        if "None" in ids:
-            return "None"
-        else:
-            return str((guild_id >> 22) % self.app.ctx.features.shard_count)
+        return str(self.app.ctx.features.calculate_shard(guild_id))

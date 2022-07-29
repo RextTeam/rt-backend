@@ -7,8 +7,8 @@ cloudflare = false
 # バックエンドにアクセス可能なホスト名のリストです。
 # 例えば、本番時は`rt.rext.dev`をこのリストに入れます。
 additional_hosts = []
-# Botが監視するシャードのIDのリストです。
-shard_ids = []
+# Botが接続しているシャードの数です。
+shard_count = 0
 
 # hCaptchaの情報です。空の場合はテスト用の公開キーが自動で使われます。
 [hcaptcha]

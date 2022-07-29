@@ -34,7 +34,7 @@ class hCaptchaData(TypedDict):
     api_key: str | None
     site_key: str | None
 class NormalData(TypedDict):
-    shard_ids: list[int]
+    shard_count: int
     sanic: dict[str, Any]
     additional_hosts: list[str]
     ssl: bool
