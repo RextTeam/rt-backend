@@ -11,7 +11,7 @@ from toml import load
 
 __all__ = (
     "SECRET", "TEST", "DATA", "API_VERSION", "SCHEME", "HOSTS",
-    "API_HOSTS", "ORIGINS", "API_ORIGINS", "TIMEOUT", "SSL",
+    "ORIGINS", "API_ORIGINS", "TIMEOUT", "SSL",
     "NORMAL_PAYMENT_LINKS"
 )
 
