@@ -73,6 +73,7 @@ def setup(app: TypedSanic) -> TypedSanic:
             for key, value in kwargs.items()
         )
     app.ctx.tempylate.builtins["t"] = t
+    app.ctx.tempylate.builtins["nlr"] = lambda text: text.replace("\n", "<br>")
 
     async def layout(**kwargs):
         kwargs.setdefault("head", "")
