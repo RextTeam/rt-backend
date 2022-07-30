@@ -37,6 +37,7 @@ class TypedContext(SimpleNamespace):
     tempylate: Manager
     hcaptcha: hCaptchaManager
     customers: CustomerManager
+    data: dict[str, tuple[dict[str, str], dict[str, tuple[dict[str, str], dict[str, str]]]]]
 
 
 class APIResponseJson(TypedDict):

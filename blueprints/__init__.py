@@ -4,6 +4,7 @@ from sanic import Blueprint, html
 
 from core import Request
 
+from .help import bp as help_bp
 from .captcha import bp as captcha_bp
 from .oauth import bp as oauth_bp
 from .short_url import bp as short_url_bp # type: ignore
@@ -20,4 +21,4 @@ async def short_url(request: Request):
     ))
 
 
-bpg = Blueprint.group(bp, captcha_bp, oauth_bp, short_url_bp, payments_bp)
+bpg = Blueprint.group(bp, captcha_bp, oauth_bp, short_url_bp, payments_bp, help_bp)

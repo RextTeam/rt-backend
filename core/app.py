@@ -9,17 +9,19 @@ from sanic.request import Request
 from sanic.log import logger
 from sanic import Sanic
 
+from sanic_cors import CORS
+
 from aiomysql import create_pool
 
 from tempylate import Manager
-from orjson import JSONDecodeError
+from orjson import JSONDecodeError, loads
 
 from rtlib.common.utils import make_error_message
 from rtlib.common.chiper import ChiperManager
 from rtlib.common.cacher import CacherPool
 from rtlib.common.reply_error import ReplyError
 
-from data import SECRET, DATA, API_VERSION, TEST, SSL, HOSTS, API_HOSTS, ORIGINS, API_ORIGINS
+from data import SECRET, DATA, TEST, SSL, HOSTS, API_HOSTS, ORIGINS, API_ORIGINS
 
 from .types_ import TypedContext
 from .rtws import setup as setup_ipcs
@@ -49,10 +51,14 @@ def _new_request_url_for(*args, **kwargs) -> str:
         data = data.replace("http://", "https://", 1)
     return data
 Request.url_for = _new_request_url_for
+Request._loads = loads # type: ignore
 
 
 def setup(app: TypedSanic) -> TypedSanic:
     "Sanicのセットアップを行います。"
+    CORS(app, origins=ORIGINS + API_ORIGINS)
+    # app.config.CORS_ORIGINS = ORIGINS + API_ORIGINS
+
     app.ctx.rtws = ExtendedIpcsServer("__IPCS_SERVER__")
     app.ctx.features = Features(app)
     app.ctx.chiper = ChiperManager.from_key_file("secret.key")
@@ -80,12 +86,12 @@ def setup(app: TypedSanic) -> TypedSanic:
     if DATA["cloudflare"]:
         app.config.REAL_IP_HEADER = "CF-Connecting-IP"
 
-    app.config.CORS_ORIGINS = ORIGINS + API_ORIGINS
+    """
     app.ext.openapi.describe( # type: ignore
         "RT API",
         version=API_VERSION,
         description="ほとんどのAPIがRTのBotしか使えません。"
-    )
+    )"""
 
     @app.route("/")
     async def redirect_index(request: Request):
@@ -120,7 +126,7 @@ def setup(app: TypedSanic) -> TypedSanic:
         if request.host not in HOSTS and request.host not in API_HOSTS:
             raise Forbidden("このアドレスでアクセスすることはできません。")
 
-        if "api." not in request.host and request.url.endswith(".html"):
+        if "api." not in request.host and request.path.endswith(".html"):
             path = request.path
             if path.startswith("/"):
                 path = path[1:]
