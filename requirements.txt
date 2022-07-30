@@ -1,5 +1,5 @@
 sanic
-sanic-ext
+sanic-cors
 aiomysql
 orjson
 ipcs
