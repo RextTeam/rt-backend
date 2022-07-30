@@ -12,8 +12,6 @@ from ipcs import logger as ipcs_logger
 
 from rtlib.common import set_handler
 
-from data import API_HOSTS
-
 from .utils import is_valid
 
 if TYPE_CHECKING:
@@ -25,7 +23,7 @@ set_handler(ipcs_logger)
 
 
 def setup(app: TypedSanic):
-    @app.websocket("/rtws", API_HOSTS)
+    @app.websocket("/api/rtws")
     @is_valid
     async def rtws(_: Request, ws: Websocket):
         await app.ctx.rtws.communicate(ws)

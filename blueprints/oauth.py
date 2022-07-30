@@ -6,10 +6,9 @@ from sanic import Blueprint
 from core.utils import CoolDown
 from core import Request, api
 
-from data import API_HOSTS
-
 
 bp = Blueprint("oauth", "/account")
+bp_api = Blueprint("oauth_api")
 
 
 @bp.route("/login")
@@ -44,7 +43,7 @@ async def logout(request: Request):
     return response
 
 
-@bp.route("/fetch", host=API_HOSTS)
+@bp_api.route("/account")
 async def account(request: Request):
     user = await request.app.ctx.oauth.fetch_user(request)
     return api(None if user is None else user)

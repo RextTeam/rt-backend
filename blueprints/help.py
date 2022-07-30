@@ -5,10 +5,8 @@ from sanic import Blueprint, HTTPResponse
 from core import Request, api
 from core.utils import CoolDown, is_valid
 
-from data import API_HOSTS
 
-
-bp = Blueprint("rt-help", "/help", API_HOSTS)
+bp = Blueprint("rt-help", "/help")
 data = {}
 
 

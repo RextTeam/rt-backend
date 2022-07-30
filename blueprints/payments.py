@@ -6,10 +6,10 @@ from core import Request, TypedSanic
 from core.customer_manager import PeriodMode, PaymentLinkContainer
 from core.utils import api
 
-from data import API_HOSTS, NORMAL_PAYMENT_LINKS
+from data import NORMAL_PAYMENT_LINKS
 
 
-bp = Blueprint("payments", "/payments", API_HOSTS)
+bp = Blueprint("payments", "/payments")
 
 
 @bp.before_server_start

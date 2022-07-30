@@ -21,7 +21,7 @@ from rtlib.common.chiper import ChiperManager
 from rtlib.common.cacher import CacherPool
 from rtlib.common.reply_error import ReplyError
 
-from data import SECRET, DATA, TEST, SSL, HOSTS, API_HOSTS, ORIGINS, API_ORIGINS
+from data import SECRET, DATA, TEST, SSL, HOSTS, ORIGINS, API_ORIGINS
 
 from .types_ import TypedContext
 from .rtws import setup as setup_ipcs
@@ -123,10 +123,10 @@ def setup(app: TypedSanic) -> TypedSanic:
     @app.on_request
     async def on_request(request: Request) -> HTTPResponse | None:
         # ホスト名が許可リストにあるかどうかを調べる。
-        if request.host not in HOSTS and request.host not in API_HOSTS:
+        if request.host not in HOSTS:
             raise Forbidden("このアドレスでアクセスすることはできません。")
 
-        if "api." not in request.host and request.path.endswith(".html"):
+        if request.path.endswith(".html"):
             path = request.path
             if path.startswith("/"):
                 path = path[1:]
@@ -134,7 +134,7 @@ def setup(app: TypedSanic) -> TypedSanic:
 
     @app.exception(Exception)
     async def on_exception(request: Request, exception: Exception) -> HTTPResponse:
-        if "api." in request.host:
+        if "api" in request.path:
             data = f"{exception.__class__.__name__}: {exception}"
             if isinstance(exception, ReplyError):
                 status = exception.status

@@ -58,10 +58,10 @@ def host_port(host: str) -> str:
 
 SCHEME = f"http{'s' if DATA['sanic']['port'] == 443 else ''}://"
 HOSTS = list(map(host_port, chain(("localhost", "127.0.0.1"), DATA["additional_hosts"])))
-API_HOSTS = list(map(lambda h: f"api.{h}", HOSTS))
+# API_HOSTS = list(map(lambda h: f"api.{h}", HOSTS))
 to_url = lambda h: f"{SCHEME}{h}"
 ORIGINS = list(map(to_url, HOSTS))
-API_ORIGINS = list(map(to_url, API_HOSTS))
+API_ORIGINS = [] # list(map(to_url, API_HOSTS))
 del to_url
 
 

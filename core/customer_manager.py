@@ -19,8 +19,6 @@ from stripe.error import SignatureVerificationError
 from rtlib.common.reply_error import BadRequest
 from rtlib.common.database import DatabaseManager
 
-from data import API_HOSTS
-
 if TYPE_CHECKING:
     from .app import TypedSanic
 
@@ -34,8 +32,8 @@ class CustomerManager:
     def __init__(self, app: TypedSanic, api_key: str, endpoint_secret: str):
         self.app, self.api_key, self.endpoint_secret = app, api_key, endpoint_secret
         self.app.add_route(
-            self.webhook, "/payments/webhook",
-            ("POST", "GET"), API_HOSTS
+            self.webhook, "/api/payments/webhook",
+            ("POST", "GET")
         )
         stripe.api_key = self.api_key
 
@@ -83,7 +81,7 @@ class CustomerManager:
 
     @staticmethod
     def get_blueprint() -> Blueprint:
-        return Blueprint("payments", "/payments", API_HOSTS)
+        return Blueprint("payments", "/api/payments")
 
     async def webhook(self, request: Request) -> HTTPResponse:
         # ウェブフックのリクエストがStripeからであることを確かめる。
