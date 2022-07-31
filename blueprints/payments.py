@@ -3,7 +3,7 @@
 from sanic import Blueprint, HTTPResponse
 from sanic.response import redirect
 
-from core import Request, TypedSanic
+from core import TypedSanic
 from core.customer_manager import PeriodMode, PaymentLinkContainer
 from core.utils import api
 
