@@ -27,6 +27,4 @@ async def get_link(_, period: PeriodMode, user_id: int, guild_id: int) -> HTTPRe
 
 @bp.route("/payment/<period>/<user_id:int>/<guild_id:int>")
 async def redirect_url(_, period: PeriodMode, user_id: int, guild_id: int) -> HTTPResponse:
-    response = redirect("/account/login")
-    response.cookies["redirect"] = payment_links.get_link(period, user_id, guild_id)
-    return response
+    return redirect(payment_links.get_link(period, user_id, guild_id))
