@@ -15,14 +15,15 @@ bp_api = Blueprint("oauth_api")
 @CoolDown(1, 1)
 async def login(request: Request):
     return redirect(await request.app.ctx.oauth.generate_url(
-        request.url_for("oauth.callback"), ("identify",)
+        request.url_for("oauth.callback"), ("identify", "guilds")
     ))
 
 
 @bp.route("/callback")
 @CoolDown(1, 1)
 async def callback(request: Request):
-    response = redirect(request.cookies.get("redirect", "/"))
+    redirect_to = request.cookies.get("redirect")
+    response = redirect(redirect_to or "/")
     response.cookies["session"] = await request.app.ctx.oauth.encrypt(
         await request.app.ctx.oauth.make_cookie(
             await request.app.ctx.oauth.fetch_user(
@@ -32,6 +33,8 @@ async def callback(request: Request):
             )
         )
     )
+    if redirect_to is not None:
+        del response.cookies["redirect_to"]
     return response
 
 
